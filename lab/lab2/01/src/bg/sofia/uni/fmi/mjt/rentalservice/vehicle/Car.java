@@ -13,6 +13,7 @@ public class Car implements Vehicle {
     public Car (String id, Location location) {
         this.id = id;
         this.location = location;
+        this.until = LocalDateTime.now();
     }
 
     @Override
@@ -32,7 +33,7 @@ public class Car implements Vehicle {
 
     @Override
     public Location getLocation() {
-        return location == null ? new Location(0, 0) : location; // or move it to the constructor
+        return location == null ? new Location(0, 0) : location;
     }
 
     @Override
@@ -42,7 +43,14 @@ public class Car implements Vehicle {
 
     @Override
     public void setEndOfReservationPeriod(LocalDateTime until) {
-        this.until = until;
+        if (until != null && !until.isBefore(this.until)) {
+            this.until = until;
+        }
+    }
+
+    public boolean equals(Vehicle vehicle) {
+//        if (vehicle == null) return false;
+        return vehicle.getId().equals(this.id);
     }
 
 }

@@ -2,12 +2,18 @@ public class PathUtils {
     public static void main(String[] args) {
         System.out.println(getCanonicalPath("/home/"));
         System.out.println(getCanonicalPath("/../"));
+        System.out.println(getCanonicalPath("//"));
         System.out.println(getCanonicalPath("/home//foo/"));
         System.out.println(getCanonicalPath("/a/./b/../../c/"));
     }
 
     public static String getCanonicalPath(String path) {
         String[] pathArr = path.replaceAll("/+", "/").split("/");
+
+        if (pathArr.length == 0) {
+            return new String("/");
+        }
+
         pathArr[0] = "/";
         int j = 0;
 

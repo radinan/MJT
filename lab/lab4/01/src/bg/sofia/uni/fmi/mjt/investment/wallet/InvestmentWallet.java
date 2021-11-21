@@ -106,7 +106,7 @@ public class InvestmentWallet implements Wallet {
 
         double profit = Math.max(bidPrice, minPrice) * quantity;
         cashBalance += profit;
-        
+
         return profit;
     }
 
@@ -173,10 +173,9 @@ public class InvestmentWallet implements Wallet {
             return Set.copyOf(acquisitions);
         }
 
-        int lastIndex = acquisitions.size() - 1;
-        int startIndex = lastIndex - n;
+        int size = acquisitions.size();
 
-        List<Acquisition> l = acquisitions.subList(startIndex, lastIndex);
+        List<Acquisition> l = acquisitions.subList(size - n, size);
         return Set.copyOf(l);
     }
 }

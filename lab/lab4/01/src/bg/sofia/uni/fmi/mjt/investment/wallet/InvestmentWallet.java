@@ -101,9 +101,12 @@ public class InvestmentWallet implements Wallet {
             throw new OfferPriceException();
         }
 
+        Double assetsCount = assetsToCount.get(asset);
+        assetsToCount.put(asset, assetsCount - quantity);
+
         double profit = Math.max(bidPrice, minPrice) * quantity;
         cashBalance += profit;
-
+        
         return profit;
     }
 

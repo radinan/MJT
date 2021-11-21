@@ -13,7 +13,6 @@ import bg.sofia.uni.fmi.mjt.investment.wallet.exception.WalletException;
 public interface Wallet {
 
     /**
-     *
      * @param cash the cash to deposit in the investment wallet
      * @return the cash balance in the wallet after the transaction
      * @throws IllegalArgumentException if the @cash is negative
@@ -21,7 +20,6 @@ public interface Wallet {
     double deposit(double cash);
 
     /**
-     *
      * @param cash the cash to withdraw from the investment wallet
      * @return the cash balance in the wallet after the transaction
      * @throws IllegalArgumentException       if the @cash is negative
@@ -31,54 +29,49 @@ public interface Wallet {
     double withdraw(double cash) throws InsufficientResourcesException;
 
     /**
-     *
      * @param asset    the asset to buy
      * @param quantity the quantity to buy
      * @param maxPrice the maxPrice to pay for a unit of @asset
      * @return the acquisition of the @asset
-     *
-     * @throws IllegalArgumentException when:
-     * @quantity is negative
-     * @maxPrice is negative
-     * @asset is null
-     *
+     * @throws IllegalArgumentException       when:
      * @throws UnknownAssetException          if there is no defined quote for
      *                                        the @asset
      * @throws OfferPriceException            if the ask price of the @asset is
      *                                        higher than the @maxPrice
      * @throws InsufficientResourcesException if there is not enough balance for the
      *                                        transaction
+     * @quantity is negative
+     * @maxPrice is negative
+     * @asset is null
      */
     Acquisition buy(Asset asset, int quantity, double maxPrice) throws WalletException;
 
     /**
-     *
      * @param asset    the asset to sell
      * @param quantity the quantity to sell
      * @param minPrice the minPrice to sell a unit of @asset for
      * @return the cash added to the balance after the sell
-     * @throws IllegalArgumentException when:
-     * @asset is null
-     * @quantity is negative
-     * @minPrice is negative
+     * @throws IllegalArgumentException       when:
      * @throws InsufficientResourcesException if there is not enough quantity of
      *                                        the @asset
      * @throws UnknownAssetException          if there is no defined quote for
      *                                        the @asset
+     * @asset is null
+     * @quantity is negative
+     * @minPrice is negative
      * @OfferPriceException if the bid price of the @asset is lower than
-     *                      the @minPrice
+     * the @minPrice
      */
     double sell(Asset asset, int quantity, double minPrice) throws WalletException;
 
     /**
-     *
      * @return the valuations of all of the assets in the wallet combined
      */
     double getValuation();
 
     /**
      * Valuation is the current market price of an asset.
-     *
+     * <p>
      * Valuation of a specific @asset in the investment wallet is the current bid
      * price of the @asset multiplied by the quantity of the @asset in the wallet
      *
@@ -101,11 +94,10 @@ public interface Wallet {
     Collection<Acquisition> getAllAcquisitions();
 
     /**
-     *
      * @param n the maximum number of acquisitions to return
      * @return an unmodifiable copy of the last @n acquisitions in the wallet. If
-     *         there are less than @n acquisitions in the wallet, return all of
-     *         them. The order of the acquisitions in the returned set is undefined
+     * there are less than @n acquisitions in the wallet, return all of
+     * them. The order of the acquisitions in the returned set is undefined
      * @throws IllegalArgumentException when @n is negative
      */
     Set<Acquisition> getLastNAcquisitions(int n);

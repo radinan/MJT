@@ -5,7 +5,7 @@ public class Stock implements Asset {
     private String id;
     private String name;
 
-    public Stock (String id, String name) {
+    public Stock(String id, String name) {
         this.id = id;
         this.name = name;
     }

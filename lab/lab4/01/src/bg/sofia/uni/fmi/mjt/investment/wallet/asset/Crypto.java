@@ -1,11 +1,11 @@
 package bg.sofia.uni.fmi.mjt.investment.wallet.asset;
 
-public class Crypto implements Asset{
+public class Crypto implements Asset {
 
     private String id;
     private String name;
 
-    public Crypto (String id, String name) {
+    public Crypto(String id, String name) {
         this.id = id;
         this.name = name;
     }

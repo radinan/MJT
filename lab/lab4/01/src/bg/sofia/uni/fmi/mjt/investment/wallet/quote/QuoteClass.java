@@ -16,7 +16,7 @@ public class QuoteClass implements QuoteService {
 
     @Override
     public Quote getQuote(Asset asset) {
-        if (asset == null){
+        if (asset == null) {
             throw new IllegalArgumentException();
         }
         return assetToQuote.get(asset);

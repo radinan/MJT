@@ -1,11 +1,11 @@
 package bg.sofia.uni.fmi.mjt.investment.wallet.asset;
 
-public class Fiat implements Asset{
+public class Fiat implements Asset {
 
     private String id;
     private String name;
 
-    public Fiat (String id, String name) {
+    public Fiat(String id, String name) {
         this.id = id;
         this.name = name;
     }

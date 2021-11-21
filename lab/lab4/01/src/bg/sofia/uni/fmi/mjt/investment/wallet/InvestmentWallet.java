@@ -11,7 +11,7 @@ import bg.sofia.uni.fmi.mjt.investment.wallet.quote.QuoteService;
 
 import java.util.*;
 
-public class InvestmentWallet implements Wallet{
+public class InvestmentWallet implements Wallet {
 
     private double cashBalance;
     private QuoteService quoteService;
@@ -32,7 +32,7 @@ public class InvestmentWallet implements Wallet{
             throw new IllegalArgumentException();
         }
 
-        return cashBalance += cash; //check
+        return cashBalance += cash;
     }
 
     @Override
@@ -58,19 +58,25 @@ public class InvestmentWallet implements Wallet{
             throw new UnknownAssetException();
         }
 
-        if (quoteService.getQuote(asset).askPrice() > maxPrice) {
+        double askPrice = quoteService.getQuote(asset).askPrice();
+
+        if (askPrice > maxPrice) {
             throw new OfferPriceException();
         }
 
-        if (cashBalance < quoteService.getQuote(asset).askPrice() * quantity) {
+        if (cashBalance < askPrice * quantity) {
             throw new InsufficientResourcesException();
         }
+
+        double prisePerUnit = Math.min(askPrice, maxPrice);
 
         Double assetsCount = assetsToCount.getOrDefault(asset, 0.0);
         assetsToCount.put(asset, assetsCount + quantity);
 
-        Acquisition acquisition = new AssetAcquisition(asset, quantity);
+        Acquisition acquisition = new AssetAcquisition(asset, quantity, prisePerUnit);
         acquisitions.add(acquisition);
+
+        cashBalance -= prisePerUnit * maxPrice;
 
         return acquisition;
     }
@@ -89,11 +95,13 @@ public class InvestmentWallet implements Wallet{
             throw new UnknownAssetException();
         }
 
-        if (quoteService.getQuote(asset).bidPrice() < minPrice) {
+        double bidPrice = quoteService.getQuote(asset).bidPrice();
+
+        if (bidPrice < minPrice) {
             throw new OfferPriceException();
         }
 
-        double profit = quoteService.getQuote(asset).bidPrice() * quantity;
+        double profit = Math.max(bidPrice, minPrice) * quantity;
         cashBalance += profit;
 
         return profit;
@@ -153,8 +161,19 @@ public class InvestmentWallet implements Wallet{
             throw new IllegalArgumentException();
         }
 
-        int length = acquisitions.size() - 1;
+        if (n == 0) {
+            List<Acquisition> emptyList = new ArrayList<>();
+            return Set.copyOf(emptyList);
+        }
 
-        return Set.copyOf(acquisitions.subList(n > length ? 0 : length - n, length));
+        if (n >= acquisitions.size()) {
+            return Set.copyOf(acquisitions);
+        }
+
+        int lastIndex = acquisitions.size() - 1;
+        int startIndex = lastIndex - n;
+
+        List<Acquisition> l = acquisitions.subList(startIndex, lastIndex);
+        return Set.copyOf(l);
     }
 }

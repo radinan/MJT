@@ -17,6 +17,7 @@ public class Video implements Content {
     public Video(Stream stream) {
         this.metadata = stream.getMetadata();
         this.duration = stream.getDuration();
+        this.views = 0;
     }
 
     @Override

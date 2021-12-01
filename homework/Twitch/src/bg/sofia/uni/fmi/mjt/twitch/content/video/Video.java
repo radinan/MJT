@@ -7,42 +7,14 @@ import bg.sofia.uni.fmi.mjt.twitch.user.User;
 
 import java.time.Duration;
 
-public class Video implements Content {
+public interface Video extends Content {
+    Metadata getMetadata();
 
-    private final Metadata metadata;
-    private final Duration duration;
-    //set? watchers
-    private int views;
+    Duration getDuration();
 
-    public Video(Stream stream) {
-        this.metadata = stream.getMetadata();
-        this.duration = stream.getDuration();
-        this.views = 0;
-    }
+    void startWatching(User user);
 
-    @Override
-    public Metadata getMetadata() {
-        return metadata;
-    }
+    void stopWatching(User user);
 
-    @Override
-    public Duration getDuration() {
-        return duration;
-    }
-
-    @Override
-    public void startWatching(User user) {
-        //watchers.add(user)
-        ++views;
-    }
-
-    @Override
-    public void stopWatching(User user) {
-        //watchers.remove(user)
-    }
-
-    @Override
-    public int getNumberOfViews() {
-        return views;
-    }
+    int getNumberOfViews();
 }

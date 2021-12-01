@@ -1,10 +1,13 @@
 package bg.sofia.uni.fmi.mjt.twitch;
 
 import bg.sofia.uni.fmi.mjt.twitch.content.Category;
+import bg.sofia.uni.fmi.mjt.twitch.content.history.CategoryHistory;
 import bg.sofia.uni.fmi.mjt.twitch.content.Content;
 import bg.sofia.uni.fmi.mjt.twitch.content.Metadata;
 import bg.sofia.uni.fmi.mjt.twitch.content.stream.Stream;
+import bg.sofia.uni.fmi.mjt.twitch.content.stream.StreamTwitch;
 import bg.sofia.uni.fmi.mjt.twitch.content.video.Video;
+import bg.sofia.uni.fmi.mjt.twitch.content.video.VideoTwitch;
 import bg.sofia.uni.fmi.mjt.twitch.user.User;
 import bg.sofia.uni.fmi.mjt.twitch.user.UserNotFoundException;
 import bg.sofia.uni.fmi.mjt.twitch.user.UserStatus;
@@ -15,30 +18,16 @@ import java.util.*;
 
 public class Twitch implements StreamingPlatform {
 
-    UserService userService;
-    Map<String, List<Content>> usernameToContent;
-    Map<String, Map<Category, Integer>> usernameToHistory;
+    private UserService userService;
+    private Map<String, List<Content>> usernameToContent;
+    private Map<String, List<CategoryHistory>> usernameToHistory;
 
     public Twitch(UserService userService) {
         this.userService = userService;
         this.usernameToContent = new HashMap<>();
         this.usernameToHistory = new HashMap<>();
-//        this.contentCountByCategory = new Integer[contentsIndexes.length];
     }
 
-    /**
-     * Starts a new {@link Stream} and returns a reference to it.
-     *
-     * @param username the username of the streamer
-     * @param title    the title of the stream
-     * @param category the {@link Category} of the stream
-     * @return the started {@link Stream}
-     * @throws IllegalArgumentException if any of the parameters are null or if strings are empty
-     * @throws UserNotFoundException    if a user with this username is not found in
-     *                                  the service
-     * @throws UserStreamingException   if a user with this username is currently
-     *                                  streaming
-     */
     @Override
     public Stream startStream(String username, String title, Category category) throws UserNotFoundException, UserStreamingException {
         if (username == null || username.isEmpty() ||
@@ -58,22 +47,12 @@ public class Twitch implements StreamingPlatform {
 
         user.setStatus(UserStatus.STREAMING);
 
-        return new Stream(new Metadata(title, category, user));
+        Stream newStream = new StreamTwitch(new Metadata(title, category, user));
+        addContent(username, newStream);
+
+        return newStream;
     }
 
-    /**
-     * Ends an existing {@link Stream} and returns a new {@link Video} which was
-     * made of it.
-     *
-     * @param username the username of the streamer
-     * @param stream   the stream to end
-     * @return the created {@link Video}
-     * @throws IllegalArgumentException if any of the parameters are null or if {@code username} is empty
-     * @throws UserNotFoundException    if a user with this username is not found in
-     *                                  the service
-     * @throws UserStreamingException   if a user with this username is currently not
-     *                                  streaming
-     */
     @Override
     public Video endStream(String username, Stream stream) throws UserNotFoundException, UserStreamingException {
         if (username == null || username.isEmpty() || stream == null) {
@@ -93,20 +72,12 @@ public class Twitch implements StreamingPlatform {
         stream.endStream();
         user.setStatus(UserStatus.OFFLINE);
 
-        return new Video(stream);
+        Video newVideo = new VideoTwitch(stream);
+        addContent(username, newVideo);
+
+        return newVideo;
     }
 
-    /**
-     * Watches a content.
-     *
-     * @param username the username of the watcher
-     * @param content  the content to watch
-     * @throws IllegalArgumentException if any of the parameters are null or if {@code username} is empty
-     * @throws UserNotFoundException    if a user with this username is not found in
-     *                                  the service
-     * @throws UserStreamingException   if the user with the specified username is
-     *                                  currently streaming
-     */
     @Override
     public void watch(String username, Content content) throws UserNotFoundException, UserStreamingException {
         if (username == null || username.isEmpty() || content == null) {
@@ -124,19 +95,13 @@ public class Twitch implements StreamingPlatform {
         }
 
         content.startWatching(user);
+        addToHistory(username, content.getMetadata().getCategory());
     }
 
-    /**
-     * Returns the {@link User} whose {@link Content}s have the most views combined in the
-     * service or null if there is no such user.
-     *
-     * @return the {@link User} whose {@link Content}s have the most views combined in the
-     * service or null if there is no such user
-     */
     @Override
     public User getMostWatchedStreamer() {
+        String maxUsername = "";
         long maxViews = -1;
-        String maxUsername = null;
 
         for (String username : userService.getUsers().keySet()) {
             long currentViews = getCombinedViews(username);
@@ -150,13 +115,6 @@ public class Twitch implements StreamingPlatform {
         return userService.getUsers().get(maxUsername);
     }
 
-    /**
-     * Returns the {@link Content} which has the most views in the service
-     * or null if there is not such content.
-     *
-     * @return the {@link Content} which has the most views in the service
-     * or null if there is not such content
-     */
     @Override
     public Content getMostWatchedContent() {
         Content maxContent = null;
@@ -176,16 +134,6 @@ public class Twitch implements StreamingPlatform {
         return maxContent;
     }
 
-    /**
-     * Returns the {@link Content} from user with name username which has the most
-     * views in the service or null if there is not such content.
-     *
-     * @return the {@link Content} from user with name username which has the most
-     *         views in the service or null if there is not such content
-     * @throws IllegalArgumentException if {@code username} is null or empty
-     * @throws UserNotFoundException if a user with this username is not found in
-     *                               the service
-     */
     @Override
     public Content getMostWatchedContentFrom(String username) throws UserNotFoundException {
         if (username == null || username.isEmpty()) {
@@ -204,17 +152,46 @@ public class Twitch implements StreamingPlatform {
             return null;
         }
 
-        content.sort(Comparator.comparing(Content::getNumberOfViews).reversed());
+        Comparator<Content> comparator = Comparator.comparing(Content::getNumberOfViews).reversed();
+        content.sort(comparator);
+
         return content.get(0);
     }
 
     @Override
     public List<Category> getMostWatchedCategoriesBy(String username) throws UserNotFoundException {
-        return null;
+        if (username == null || username.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        User user = userService.getUsers().get(username);
+
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
+
+        List<CategoryHistory> history = usernameToHistory.getOrDefault(username, new ArrayList<>());
+        Comparator<CategoryHistory> comparator = Comparator.comparing(CategoryHistory::getViewsCount).reversed();
+        history.sort(comparator);
+
+        List<Category> mostWatchedCategories = new ArrayList<>();
+
+        for (CategoryHistory categoryViewHistory : history) {
+            mostWatchedCategories.add(categoryViewHistory.getCategory());
+        }
+
+        return mostWatchedCategories;
+    }
+
+
+    private void addContent(String username, Content content) {
+        List<Content> contents = usernameToContent.getOrDefault(username, new ArrayList<>());
+        contents.add(content);
+        usernameToContent.put(username, contents);
     }
 
     private long getCombinedViews(String username) {
-        List<Content> contents = usernameToContent.get(username);
+        List<Content> contents = usernameToContent.getOrDefault(username, new ArrayList<>());
         long sumViews = 0;
 
         for (Content content : contents) {
@@ -224,6 +201,21 @@ public class Twitch implements StreamingPlatform {
         return sumViews;
     }
 
-    private void addToHistory(String username, Content content) {
+    private void addToHistory(String username, Category category) {
+        List<CategoryHistory> history = usernameToHistory.getOrDefault(username, new ArrayList<>());
+
+        for (CategoryHistory categoryHistory : history) {
+            if (categoryHistory.getCategory().equals(category)) {
+                categoryHistory.watch();
+                return;
+            }
+        }
+
+        CategoryHistory categoryHistory = new CategoryHistory(category);
+        categoryHistory.watch();
+
+        history.add(categoryHistory);
+
+        usernameToHistory.put(username, history);
     }
 }

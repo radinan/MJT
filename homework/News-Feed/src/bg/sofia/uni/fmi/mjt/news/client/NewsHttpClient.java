@@ -56,7 +56,7 @@ public class NewsHttpClient {
 
         if (httpResponse.statusCode() == HttpURLConnection.HTTP_INTERNAL_ERROR ||
                 httpResponse.statusCode() == httpTooManyRequests) {
-            throw new ClientServiceException("Unavailable service");
+            throw new ClientServiceException("Unavailable news service.");
         }
 
         if (httpResponse.statusCode() == HttpURLConnection.HTTP_BAD_REQUEST ||

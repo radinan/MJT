@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class NewsFeed {
-    private final Integer MAX_PAGES = 2;
-    private final Integer MAX_PAGE_SIZE = 2;
+    private static final Integer MAX_PAGES = 2;
+    private static final Integer MAX_PAGE_SIZE = 2;
     private Integer currentPage;
 
     private final NewsHttpClient newsHttpClient;

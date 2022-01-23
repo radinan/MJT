@@ -106,8 +106,8 @@ public class NewsHttpClientTest {
                     ClientServiceException.class, e.getClass());
         }
 
-        final int HTTP_TOO_MANY_REQUESTS = 429;
-        when(httpResponseMock.statusCode()).thenReturn(HTTP_TOO_MANY_REQUESTS);
+        final int httpTooManyRequests = 429;
+        when(httpResponseMock.statusCode()).thenReturn(httpTooManyRequests);
         try {
             newsHttpClient.get(requestCriteria);
         } catch (Exception e) {

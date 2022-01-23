@@ -3,7 +3,6 @@ package bg.sofia.uni.fmi.mjt.news.dto;
 import java.util.List;
 import java.util.Objects;
 
-//change name
 public class Response {
     private final Status status;
     private final Integer totalResults;

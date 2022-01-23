@@ -19,10 +19,10 @@ public class RequestCriteria {
             return null;
         }
 
-        final String SEPARATOR = "+";
+        final String separator = "+";
         StringBuilder concatenatedKeywords = new StringBuilder();
 
-        keywords.forEach(e -> concatenatedKeywords.append(e).append(SEPARATOR));
+        keywords.forEach(e -> concatenatedKeywords.append(e).append(separator));
         concatenatedKeywords.deleteCharAt(concatenatedKeywords.length() - 1);
 
         return concatenatedKeywords.toString();

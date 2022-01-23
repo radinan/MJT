@@ -13,24 +13,24 @@ import java.net.http.HttpResponse;
 
 public class NewsHttpClient {
     //get api key after registration at https://newsapi.org/register
-    private final String API_KEY = "put-api-key-here";
-    private final String API_ENDPOINT_SCHEME = "https";
-    private final String API_ENDPOINT_HOST = "newsapi.org";
-    private final String API_ENDPOINT_PATH = "/v2/top-headlines";
+    private static final String API_KEY = "put-api-key-here";
+    private static final String API_ENDPOINT_SCHEME = "https";
+    private static final String API_ENDPOINT_HOST = "newsapi.org";
+    private static final String API_ENDPOINT_PATH = "/v2/top-headlines";
 
-    private final Gson GSON = new Gson();
+    private static final Gson GSON = new Gson();
 
-    private final String api_key;
+    private final String apiKey;
     private final HttpClient httpClient;
 
     public NewsHttpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
-        this.api_key = API_KEY;
+        this.apiKey = API_KEY;
     }
 
-    public NewsHttpClient(HttpClient httpClient, String api_key) {
+    public NewsHttpClient(HttpClient httpClient, String apiKey) {
         this.httpClient = httpClient;
-        this.api_key = api_key;
+        this.apiKey = apiKey;
     }
 
     public Response get(RequestCriteria requestCriteria) throws NewsFeedException {
@@ -51,10 +51,10 @@ public class NewsHttpClient {
             return GSON.fromJson(httpResponse.body(), Response.class);
         }
 
-        final int HTTP_TOO_MANY_REQUESTS = 429;
+        final int httpTooManyRequests = 429;
 
         if (httpResponse.statusCode() == HttpURLConnection.HTTP_INTERNAL_ERROR ||
-                httpResponse.statusCode() == HTTP_TOO_MANY_REQUESTS) {
+                httpResponse.statusCode() == httpTooManyRequests) {
             throw new ClientServiceException("Unavailable service");
         }
 
@@ -69,41 +69,41 @@ public class NewsHttpClient {
     private String generateParameters(RequestCriteria requestCriteria) {
         StringBuilder parameters = new StringBuilder();
 
-        final String PREFIX_COUNTRY = "country=";
-        final String PREFIX_CATEGORY = "category=";
-        final String PREFIX_KEYWORDS = "q=";
-        final String PREFIX_PAGE_SIZE = "pageSize=";
-        final String PREFIX_PAGE = "page=";
-        final String PREFIX_API_KEY = "apiKey=";
+        final String prefixCountry = "country=";
+        final String prefixCategory = "category=";
+        final String prefixKeywords = "q=";
+        final String prefixPageSize = "pageSize=";
+        final String prefixPage = "page=";
+        final String prefixApiKey = "apiKey=";
 
         if (requestCriteria.getCountry() != null) {
-            appendPrefixAndValueToFragment(parameters, PREFIX_COUNTRY, requestCriteria.getCountry());
+            appendPrefixAndValueToFragment(parameters, prefixCountry, requestCriteria.getCountry());
         }
 
         if (requestCriteria.getCategory() != null) {
-            appendPrefixAndValueToFragment(parameters, PREFIX_CATEGORY, requestCriteria.getCategory());
+            appendPrefixAndValueToFragment(parameters, prefixCategory, requestCriteria.getCategory());
         }
 
-        appendPrefixAndValueToFragment(parameters, PREFIX_KEYWORDS, requestCriteria.getConcatenatedKeywords());
+        appendPrefixAndValueToFragment(parameters, prefixKeywords, requestCriteria.getConcatenatedKeywords());
 
         if (requestCriteria.getPageSize() != null) {
-            appendPrefixAndValueToFragment(parameters, PREFIX_PAGE_SIZE, requestCriteria.getPageSize().toString());
+            appendPrefixAndValueToFragment(parameters, prefixPageSize, requestCriteria.getPageSize().toString());
         }
 
         if (requestCriteria.getPage() != null) {
-            appendPrefixAndValueToFragment(parameters, PREFIX_PAGE, requestCriteria.getPage().toString());
+            appendPrefixAndValueToFragment(parameters, prefixPage, requestCriteria.getPage().toString());
         }
 
-        appendPrefixAndValueToFragment(parameters, PREFIX_API_KEY, api_key);
+        appendPrefixAndValueToFragment(parameters, prefixApiKey, apiKey);
 
         return parameters.toString();
     }
 
     private void appendPrefixAndValueToFragment(StringBuilder fragment, String prefix, String value) {
-        final String AND = "&";
+        final String and = "&";
 
         if (fragment.length() > 0) {
-            fragment.append(AND);
+            fragment.append(and);
         }
 
         fragment.append(prefix).append(value);

@@ -30,6 +30,7 @@ public class Controller {
     }
 
     //make category and country optional?
+    //rethrow with better messages?
     public List<Article> getNewsFeed(List<String> keywords, String category, String country) throws NewsFeedClientException {
         if (keywords == null || keywords.isEmpty()) {
             throw new NewsFeedClientException("Missing required parameter.");

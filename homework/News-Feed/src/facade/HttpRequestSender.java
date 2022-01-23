@@ -33,6 +33,7 @@ public class HttpRequestSender {
         this.api_key = api_key;
     }
 
+    //throw with message from body?
     public ResponseSuccess get(Request request) throws NewsFeedClientException {
         HttpResponse<String> httpResponse = getRequest(request);
 
@@ -64,7 +65,7 @@ public class HttpRequestSender {
 
     private HttpResponse<String> getRequest(Request request) throws NewsFeedClientException {
         try {
-            URI uri = new URI(API_ENDPOINT_SCHEME, API_ENDPOINT_HOST, API_ENDPOINT_PATH, generateFragment(request));
+            URI uri = new URI(API_ENDPOINT_SCHEME, API_ENDPOINT_HOST, API_ENDPOINT_PATH, generateParameters(request));
             HttpRequest httpRequest = HttpRequest.newBuilder(uri).build();
 
             return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
@@ -73,8 +74,8 @@ public class HttpRequestSender {
         }
     }
 
-    private String generateFragment(Request request) {
-        StringBuilder fragment = new StringBuilder();
+    private String generateParameters(Request request) {
+        StringBuilder parameters = new StringBuilder();
 
         final String PREFIX_COUNTRY = "country=";
         final String PREFIX_CATEGORY = "category=";
@@ -84,22 +85,22 @@ public class HttpRequestSender {
         final String PREFIX_API_KEY = "apiKey=";
 
         if (request.getCountry().isPresent()) {
-            appendPrefixAndValueToFragment(fragment, PREFIX_COUNTRY, request.getCountry().get());
+            appendPrefixAndValueToFragment(parameters, PREFIX_COUNTRY, request.getCountry().get());
         }
 
         if (request.getCategory().isPresent()) {
-            appendPrefixAndValueToFragment(fragment, PREFIX_CATEGORY, request.getCategory().get());
+            appendPrefixAndValueToFragment(parameters, PREFIX_CATEGORY, request.getCategory().get());
         }
 
-        appendPrefixAndValueToFragment(fragment, PREFIX_KEYWORDS, request.getConcatenatedKeywords());
+        appendPrefixAndValueToFragment(parameters, PREFIX_KEYWORDS, request.getConcatenatedKeywords());
 
-        appendPrefixAndValueToFragment(fragment, PREFIX_PAGE_SIZE, request.getPageSize().toString());
+        appendPrefixAndValueToFragment(parameters, PREFIX_PAGE_SIZE, request.getPageSize().toString());
 
-        appendPrefixAndValueToFragment(fragment, PREFIX_PAGE, request.getPage().toString());
+        appendPrefixAndValueToFragment(parameters, PREFIX_PAGE, request.getPage().toString());
 
-        appendPrefixAndValueToFragment(fragment, PREFIX_API_KEY, api_key);
+        appendPrefixAndValueToFragment(parameters, PREFIX_API_KEY, api_key);
 
-        return fragment.toString();
+        return parameters.toString();
     }
 
     private void appendPrefixAndValueToFragment(StringBuilder fragment, String prefix, String value) {

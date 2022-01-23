@@ -1,12 +1,12 @@
 package dto;
 
 public class Article {
-    private final Source source;
-    private final String author;
+    private final Source source; //maybe without
+    private final String author; //maybe without
     private final String title;
     private final String description;
     private final String url;
-    private final String urlToImage;
+    private final String urlToImage; //maybe without
     private final String publishedAt;
     private final String content;
 

@@ -2,6 +2,7 @@ import com.google.gson.Gson;
 import entities.ResponseError;
 import entities.ResponseSuccess;
 
+//add mockito tests
 public class Main {
     public static void main(String[] args) {
         Gson gson = new Gson();

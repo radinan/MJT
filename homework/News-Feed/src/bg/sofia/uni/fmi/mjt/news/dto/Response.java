@@ -32,7 +32,9 @@ public class Response {
         if (this == o) return true;
         if (!(o instanceof Response)) return false;
         Response that = (Response) o;
-        return status == that.status && Objects.equals(totalResults, that.totalResults) && Objects.equals(articles, that.articles);
+        return status == that.status &&
+                Objects.equals(totalResults, that.totalResults) &&
+                Objects.equals(articles, that.articles);
     }
 
     @Override

@@ -4,7 +4,7 @@ import bg.sofia.uni.fmi.mjt.news.dto.Article;
 import bg.sofia.uni.fmi.mjt.news.dto.Response;
 import bg.sofia.uni.fmi.mjt.news.dto.RequestCriteria;
 import bg.sofia.uni.fmi.mjt.news.dto.Status;
-import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
+import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedException;
 import bg.sofia.uni.fmi.mjt.news.client.NewsHttpClient;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -52,12 +52,12 @@ public class NewsFeedTest {
     }
 
     @Before
-    public void setup() throws NewsFeedClientException {
+    public void setup() throws NewsFeedException {
         newsFeed = new NewsFeed(newsHttpClientMock);
     }
 
     @Test
-    public void testGetNewsOnePageSuccess() throws NewsFeedClientException {
+    public void testGetNewsOnePageSuccess() throws NewsFeedException {
         when(newsHttpClientMock.get(Mockito.any(RequestCriteria.class))).thenReturn(responseTotalSizeBelowMax);
 
         List<String> keywords = new ArrayList<>();
@@ -68,7 +68,7 @@ public class NewsFeedTest {
     }
 
     @Test
-    public void testGetNewsMultiplePagesSuccess() throws NewsFeedClientException {
+    public void testGetNewsMultiplePagesSuccess() throws NewsFeedException {
         when(newsHttpClientMock.get(Mockito.any(RequestCriteria.class))).thenReturn(responseTotalSizeAboveMax);
 
         List<String> keywords = new ArrayList<>();
@@ -78,13 +78,13 @@ public class NewsFeedTest {
         assertTrue("Incorrect size of returned articles.", news.size() <= MAX_PAGES * MAX_PAGE_SIZE);
     }
 
-    @Test(expected = NewsFeedClientException.class)
-    public void testExceptionGetNewsMissingKey() throws NewsFeedClientException {
+    @Test(expected = NewsFeedException.class)
+    public void testExceptionGetNewsMissingKey() throws NewsFeedException {
         newsFeed.getNews(null, Optional.empty(), Optional.empty());
     }
 
-    @Test(expected = NewsFeedClientException.class)
-    public void testExceptionGetNewsEmptyKey() throws NewsFeedClientException {
+    @Test(expected = NewsFeedException.class)
+    public void testExceptionGetNewsEmptyKey() throws NewsFeedException {
         newsFeed.getNews(new ArrayList<>(), Optional.empty(), Optional.empty());
     }
 }

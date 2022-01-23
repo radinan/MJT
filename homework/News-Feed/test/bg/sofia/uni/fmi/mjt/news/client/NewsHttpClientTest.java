@@ -4,9 +4,9 @@ import bg.sofia.uni.fmi.mjt.news.dto.Article;
 import bg.sofia.uni.fmi.mjt.news.dto.Response;
 import bg.sofia.uni.fmi.mjt.news.dto.RequestCriteria;
 import bg.sofia.uni.fmi.mjt.news.dto.Status;
-import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
-import bg.sofia.uni.fmi.mjt.news.exceptions.NewsServiceException;
-import bg.sofia.uni.fmi.mjt.news.exceptions.RequestParameterException;
+import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedException;
+import bg.sofia.uni.fmi.mjt.news.exceptions.ClientServiceException;
+import bg.sofia.uni.fmi.mjt.news.exceptions.ClientRequestException;
 import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -33,8 +33,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class NewsHttpClientTest {
     private static RequestCriteria requestCriteria;
-    private static String exampleJson;
     private static Response exampleResponse;
+    private static String exampleJson;
 
     @Mock
     private static HttpResponse<String> httpResponseMock;
@@ -48,11 +48,28 @@ public class NewsHttpClientTest {
     @BeforeClass
     public static void setupClass() {
         List<String> keywords = new ArrayList<>();
-        keywords.add("Example");
-        requestCriteria = RequestCriteria.builder(keywords).build();
+        keywords.add("example");
 
-        Article article = new Article("Example title", "Example description",
-                "Example url", "Example publishedAt", "Example content");
+        String category = "business";
+        String country = "bg";
+        Integer pageSize = 2;
+        Integer page = 1;
+
+        requestCriteria = RequestCriteria.builder(keywords)
+                .setCategory(category)
+                .setCountry(country)
+                .setPageSize(pageSize)
+                .setPage(page)
+                .build();
+
+
+        String title = "example title";
+        String description = "example description";
+        String url = "example url";
+        String publishedAt = "example publishedAt";
+        String content = "example content";
+
+        Article article = new Article(title, description, url, publishedAt, content);
         List<Article> articles = new ArrayList<>();
         articles.add(article);
 
@@ -70,13 +87,13 @@ public class NewsHttpClientTest {
     }
 
     @Test
-    public void testGetSuccess() throws NewsFeedClientException {
+    public void testGetSuccess() throws NewsFeedException {
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(httpResponseMock.body()).thenReturn(exampleJson);
 
         var response = newsHttpClient.get(requestCriteria);
 
-        assertEquals("", response, exampleResponse);
+        assertEquals("Invalid response for valid request criteria.", response, exampleResponse);
     }
 
     @Test
@@ -85,7 +102,8 @@ public class NewsHttpClientTest {
         try {
             newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
-            assertEquals("", NewsServiceException.class, e.getClass());
+            assertEquals("Error class should be ClientServiceException due to server unavailability.",
+                    ClientServiceException.class, e.getClass());
         }
 
         final int HTTP_TOO_MANY_REQUESTS = 429;
@@ -93,7 +111,8 @@ public class NewsHttpClientTest {
         try {
             newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
-            assertEquals("", NewsServiceException.class, e.getClass());
+            assertEquals("Error class should be ClientServiceException due to big amount of requests.",
+                    ClientServiceException.class, e.getClass());
         }
     }
 
@@ -103,14 +122,16 @@ public class NewsHttpClientTest {
         try {
             newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
-            assertEquals("", RequestParameterException.class, e.getClass());
+            assertEquals("Error class should be ClientRequestException due to unacceptable request.",
+                    ClientRequestException.class, e.getClass());
         }
 
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_UNAUTHORIZED);
         try {
             newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
-            assertEquals("", RequestParameterException.class, e.getClass());
+            assertEquals("Error class should be ClientRequestException due to unauthorized request.",
+                    ClientRequestException.class, e.getClass());
         }
     }
 
@@ -120,9 +141,12 @@ public class NewsHttpClientTest {
         try {
             newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
-            assertEquals("", NewsFeedClientException.class, e.getClass());
-            assertNotEquals("", NewsServiceException.class, e.getClass());
-            assertNotEquals("", RequestParameterException.class, e.getClass());
+            assertEquals("Exception type should be NewsFeedException due to unknown status code.",
+                    NewsFeedException.class, e.getClass());
+            assertNotEquals("Improper use of ClientServiceException.",
+                    ClientServiceException.class, e.getClass());
+            assertNotEquals("Improper use of ClientRequestException.",
+                    ClientRequestException.class, e.getClass());
         }
     }
 
@@ -135,9 +159,9 @@ public class NewsHttpClientTest {
 
         try {
             newsHttpClient.get(requestCriteria);
-        } catch (NewsFeedClientException e) {
-            assertEquals("", e.getCause(), expectedExc);
-//            assertEquals(); type
+        } catch (NewsFeedException e) {
+            assertEquals("Exception should be wrapped properly by NewsFeedException.",
+                    e.getCause(), expectedExc);
         }
     }
 }

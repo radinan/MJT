@@ -3,7 +3,7 @@ package bg.sofia.uni.fmi.mjt.news;
 import bg.sofia.uni.fmi.mjt.news.dto.RequestCriteria;
 import bg.sofia.uni.fmi.mjt.news.dto.Response;
 import bg.sofia.uni.fmi.mjt.news.dto.Article;
-import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
+import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedException;
 import bg.sofia.uni.fmi.mjt.news.client.NewsHttpClient;
 
 import java.util.ArrayList;
@@ -22,9 +22,11 @@ public class NewsFeed {
         this.newsHttpClient = newsHttpClient;
     }
 
-    public List<Article> getNews(List<String> keywords, Optional<String> category, Optional<String> country) throws NewsFeedClientException {
+    public List<Article> getNews(List<String> keywords, Optional<String> category, Optional<String> country)
+            throws NewsFeedException {
+
         if (keywords == null || keywords.isEmpty()) {
-            throw new NewsFeedClientException("Missing required keywords parameter.");
+            throw new NewsFeedException("Missing required keywords parameter.");
         }
 
         RequestCriteria.RequestBuilder requestBuilder = RequestCriteria.builder(keywords);

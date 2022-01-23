@@ -33,16 +33,18 @@ public class NewsHttpClient {
         this.api_key = api_key;
     }
 
-    public Response get(RequestCriteria requestCriteria) throws NewsFeedClientException {
+    public Response get(RequestCriteria requestCriteria) throws NewsFeedException {
         HttpResponse<String> httpResponse;
 
         try {
-            URI uri = new URI(API_ENDPOINT_SCHEME, API_ENDPOINT_HOST, API_ENDPOINT_PATH, generateParameters(requestCriteria));
+            URI uri = new URI(API_ENDPOINT_SCHEME, API_ENDPOINT_HOST, API_ENDPOINT_PATH,
+                    generateParameters(requestCriteria));
+
             HttpRequest httpRequest = HttpRequest.newBuilder(uri).build();
 
-            httpResponse =  httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
-            throw new NewsFeedClientException("Could not retrieve the articles from news service.", e);
+            throw new NewsFeedException("Could not retrieve the articles from news service.", e);
         }
 
         if (httpResponse.statusCode() == HttpURLConnection.HTTP_OK) {
@@ -53,15 +55,15 @@ public class NewsHttpClient {
 
         if (httpResponse.statusCode() == HttpURLConnection.HTTP_INTERNAL_ERROR ||
                 httpResponse.statusCode() == HTTP_TOO_MANY_REQUESTS) {
-            throw new NewsServiceException("Unavailable service");
+            throw new ClientServiceException("Unavailable service");
         }
 
         if (httpResponse.statusCode() == HttpURLConnection.HTTP_BAD_REQUEST ||
                 httpResponse.statusCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            throw new RequestParameterException("Invalid request.");
+            throw new ClientRequestException("Invalid request.");
         }
 
-        throw new NewsFeedClientException("Unexpected response code.");
+        throw new NewsFeedException("Unexpected response code.");
     }
 
     private String generateParameters(RequestCriteria requestCriteria) {
@@ -88,7 +90,7 @@ public class NewsHttpClient {
             appendPrefixAndValueToFragment(parameters, PREFIX_PAGE_SIZE, requestCriteria.getPageSize().toString());
         }
 
-        if(requestCriteria.getPage() != null) {
+        if (requestCriteria.getPage() != null) {
             appendPrefixAndValueToFragment(parameters, PREFIX_PAGE, requestCriteria.getPage().toString());
         }
 

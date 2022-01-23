@@ -5,6 +5,8 @@ import bg.sofia.uni.fmi.mjt.news.dto.ResponseSuccess;
 import bg.sofia.uni.fmi.mjt.news.entities.Request;
 import bg.sofia.uni.fmi.mjt.news.entities.Status;
 import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
+import bg.sofia.uni.fmi.mjt.news.exceptions.NewsServiceException;
+import bg.sofia.uni.fmi.mjt.news.exceptions.RequestParameterException;
 import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -67,12 +70,59 @@ public class HttpRequestSenderTest {
     }
 
     @Test
-    public void getSuccess() throws NewsFeedClientException {
+    public void testGetSuccess() throws NewsFeedClientException {
         when(httpResponse.statusCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(httpResponse.body()).thenReturn(exampleJson);
 
         var response = httpRequestSender.get(request);
 
         assertEquals("", response, exampleResponse);
+    }
+
+    @Test
+    public void testGetNewsServiceException() {
+        when(httpResponse.statusCode()).thenReturn(HttpURLConnection.HTTP_INTERNAL_ERROR);
+        try{
+            httpRequestSender.get(request);
+        } catch (Exception e) {
+            assertEquals("", NewsServiceException.class, e.getClass());
+        }
+
+        final int HTTP_TOO_MANY_REQUESTS = 429;
+        when(httpResponse.statusCode()).thenReturn(HTTP_TOO_MANY_REQUESTS);
+        try{
+            httpRequestSender.get(request);
+        } catch (Exception e) {
+            assertEquals("", NewsServiceException.class, e.getClass());
+        }
+    }
+
+    @Test
+    public void testGetRequestParameterException() {
+        when(httpResponse.statusCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
+        try{
+            httpRequestSender.get(request);
+        } catch (Exception e) {
+            assertEquals("", RequestParameterException.class, e.getClass());
+        }
+
+        when(httpResponse.statusCode()).thenReturn(HttpURLConnection.HTTP_UNAUTHORIZED);
+        try{
+            httpRequestSender.get(request);
+        } catch (Exception e) {
+            assertEquals("", RequestParameterException.class, e.getClass());
+        }
+    }
+
+    @Test
+    public void testGetUnexpectedStatusCode() {
+        when(httpResponse.statusCode()).thenReturn(HttpURLConnection.HTTP_NOT_IMPLEMENTED);
+        try {
+            httpRequestSender.get(request);
+        } catch (Exception e) {
+            assertEquals("", NewsFeedClientException.class, e.getClass());
+            assertNotEquals("", NewsServiceException.class, e.getClass());
+            assertNotEquals("", RequestParameterException.class, e.getClass());
+        }
     }
 }

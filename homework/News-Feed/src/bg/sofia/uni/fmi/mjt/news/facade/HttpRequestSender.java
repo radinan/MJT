@@ -50,14 +50,14 @@ public class HttpRequestSender {
 
         final int HTTP_TOO_MANY_REQUESTS = 429;
 
-        if (httpResponse.statusCode() == HttpURLConnection.HTTP_BAD_REQUEST ||
-                httpResponse.statusCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            throw new RequestParameterException("Invalid request.");
-        }
-
         if (httpResponse.statusCode() == HttpURLConnection.HTTP_INTERNAL_ERROR ||
                 httpResponse.statusCode() == HTTP_TOO_MANY_REQUESTS) {
             throw new NewsServiceException("Unavailable service");
+        }
+
+        if (httpResponse.statusCode() == HttpURLConnection.HTTP_BAD_REQUEST ||
+                httpResponse.statusCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            throw new RequestParameterException("Invalid request.");
         }
 
         throw new NewsFeedClientException("Unexpected response code.");

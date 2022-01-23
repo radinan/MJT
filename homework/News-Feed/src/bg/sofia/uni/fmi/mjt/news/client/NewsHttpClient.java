@@ -2,7 +2,7 @@ package bg.sofia.uni.fmi.mjt.news.client;
 
 import com.google.gson.Gson;
 import bg.sofia.uni.fmi.mjt.news.dto.Request;
-import bg.sofia.uni.fmi.mjt.news.dto.ResponseSuccess;
+import bg.sofia.uni.fmi.mjt.news.dto.Response;
 import bg.sofia.uni.fmi.mjt.news.exceptions.*;
 
 import java.net.HttpURLConnection;
@@ -12,7 +12,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class NewsHttpClient {
-    //ae844815f7bf46a8b20a25c44a0eeb7f
+    //get api key after registration at https://newsapi.org/register
     private final String API_KEY = "put-api-key-here";
     private final String API_ENDPOINT_SCHEME = "https";
     private final String API_ENDPOINT_HOST = "newsapi.org";
@@ -33,7 +33,7 @@ public class NewsHttpClient {
         this.api_key = api_key;
     }
 
-    public ResponseSuccess get(Request request) throws NewsFeedClientException {
+    public Response get(Request request) throws NewsFeedClientException {
         HttpResponse<String> httpResponse;
 
         try {
@@ -46,7 +46,7 @@ public class NewsHttpClient {
         }
 
         if (httpResponse.statusCode() == HttpURLConnection.HTTP_OK) {
-            return GSON.fromJson(httpResponse.body(), ResponseSuccess.class);
+            return GSON.fromJson(httpResponse.body(), Response.class);
         }
 
         final int HTTP_TOO_MANY_REQUESTS = 429;

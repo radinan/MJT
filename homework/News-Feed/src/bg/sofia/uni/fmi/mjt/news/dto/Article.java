@@ -7,7 +7,7 @@ public class Article {
     private final String description;
     private final String url;
     private final String publishedAt;
-//    private final String content;
+    private final String content;
 
     public Article(String title, String description,
                    String url, String publishedAt, String content) {
@@ -16,7 +16,7 @@ public class Article {
         this.description = description;
         this.url = url;
         this.publishedAt = publishedAt;
-//        this.content = content;
+        this.content = content;
     }
 
     public String getTitle() {
@@ -55,7 +55,7 @@ public class Article {
         return Objects.hash(title, description, url, publishedAt);
     }
 
-//    public String getContent() {
-//        return content;
-//    }
+    public String getContent() {
+        return content;
+    }
 }

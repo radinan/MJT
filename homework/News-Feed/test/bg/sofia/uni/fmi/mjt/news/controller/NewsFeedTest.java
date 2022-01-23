@@ -1,7 +1,8 @@
 package bg.sofia.uni.fmi.mjt.news.controller;
 
+import bg.sofia.uni.fmi.mjt.news.NewsFeed;
 import bg.sofia.uni.fmi.mjt.news.dto.Article;
-import bg.sofia.uni.fmi.mjt.news.dto.ResponseSuccess;
+import bg.sofia.uni.fmi.mjt.news.dto.Response;
 import bg.sofia.uni.fmi.mjt.news.dto.Request;
 import bg.sofia.uni.fmi.mjt.news.dto.Status;
 import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
@@ -24,16 +25,16 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ControllerTest {
-    private static ResponseSuccess responseTotalSizeOne;
-    private static ResponseSuccess responseTotalSizeFive;
+public class NewsFeedTest {
+    private static Response responseTotalSizeOne;
+    private static Response responseTotalSizeFive;
 
 
     @Mock
     private NewsHttpClient newsHttpClientMock;
 
     @InjectMocks
-    private Controller controller;
+    private NewsFeed newsFeed;
 
     private static final Integer MAX_PAGES = 2;
     private static final Integer MAX_PAGE_SIZE = 2;
@@ -46,18 +47,18 @@ public class ControllerTest {
         List<Article> articles = new ArrayList<>();
         articles.add(article);
 
-        responseTotalSizeOne = new ResponseSuccess(Status.ok, articles.size(), articles);
+        responseTotalSizeOne = new Response(Status.ok, articles.size(), articles);
 
         for (int i = 1; i < MAX_PAGE_SIZE * MAX_PAGES + 1; ++i) {
             articles.add(article);
         }
 
-        responseTotalSizeFive = new ResponseSuccess(Status.ok, articles.size(), articles);
+        responseTotalSizeFive = new Response(Status.ok, articles.size(), articles);
     }
 
     @Before
     public void setup() throws NewsFeedClientException {
-        controller = new Controller(newsHttpClientMock);
+        newsFeed = new NewsFeed(newsHttpClientMock);
     }
 
     @Test
@@ -66,7 +67,7 @@ public class ControllerTest {
 
         List<String> keywords = new ArrayList<>();
         keywords.add("Example");
-        List<Article> news = controller.getNews(keywords, Optional.empty(), Optional.empty());
+        List<Article> news = newsFeed.getNews(keywords, Optional.empty(), Optional.empty());
 
         assertEquals("", news, responseTotalSizeOne.getArticles());
     }
@@ -83,11 +84,11 @@ public class ControllerTest {
 
     @Test(expected = NewsFeedClientException.class)
     public void testExceptionGetNewsMissingKey() throws NewsFeedClientException {
-        controller.getNews(null, Optional.empty(), Optional.empty());
+        newsFeed.getNews(null, Optional.empty(), Optional.empty());
     }
 
     @Test(expected = NewsFeedClientException.class)
     public void testExceptionGetNewsEmptyKey() throws NewsFeedClientException {
-        controller.getNews(null, Optional.empty(), Optional.empty());
+        newsFeed.getNews(null, Optional.empty(), Optional.empty());
     }
 }

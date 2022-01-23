@@ -1,7 +1,7 @@
 package bg.sofia.uni.fmi.mjt.news.client;
 
 import bg.sofia.uni.fmi.mjt.news.dto.Article;
-import bg.sofia.uni.fmi.mjt.news.dto.ResponseSuccess;
+import bg.sofia.uni.fmi.mjt.news.dto.Response;
 import bg.sofia.uni.fmi.mjt.news.dto.Request;
 import bg.sofia.uni.fmi.mjt.news.dto.Status;
 import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class NewsHttpClientTest {
     private static Request request;
     private static String exampleJson;
-    private static ResponseSuccess exampleResponse;
+    private static Response exampleResponse;
 
     @Mock
     private static HttpResponse<String> httpResponseMock;
@@ -56,7 +56,7 @@ public class NewsHttpClientTest {
         List<Article> articles = new ArrayList<>();
         articles.add(article);
 
-        exampleResponse = new ResponseSuccess(Status.ok, 1, articles);
+        exampleResponse = new Response(Status.ok, 1, articles);
         exampleJson = new Gson().toJson(exampleResponse);
     }
 

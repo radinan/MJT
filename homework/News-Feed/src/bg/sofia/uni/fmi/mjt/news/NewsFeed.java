@@ -1,7 +1,7 @@
-package bg.sofia.uni.fmi.mjt.news.controller;
+package bg.sofia.uni.fmi.mjt.news;
 
 import bg.sofia.uni.fmi.mjt.news.dto.Request;
-import bg.sofia.uni.fmi.mjt.news.dto.ResponseSuccess;
+import bg.sofia.uni.fmi.mjt.news.dto.Response;
 import bg.sofia.uni.fmi.mjt.news.dto.Article;
 import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
 import bg.sofia.uni.fmi.mjt.news.client.NewsHttpClient;
@@ -10,15 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-//singleton?
-public class Controller {
+public class NewsFeed {
     private final Integer MAX_PAGES = 2;
     private final Integer MAX_PAGE_SIZE = 2;
     private Integer currentPage;
 
     private final NewsHttpClient newsHttpClient;
 
-    public Controller(NewsHttpClient newsHttpClient) {
+    public NewsFeed(NewsHttpClient newsHttpClient) {
         currentPage = 1;
         this.newsHttpClient = newsHttpClient;
     }
@@ -34,7 +33,7 @@ public class Controller {
         requestBuilder.setPageSize(MAX_PAGE_SIZE);
         requestBuilder.setPage(currentPage);
 
-        ResponseSuccess response = newsHttpClient.get(requestBuilder.build());
+        Response response = newsHttpClient.get(requestBuilder.build());
 
         List<Article> allNews = new ArrayList<>(response.getArticles());
 

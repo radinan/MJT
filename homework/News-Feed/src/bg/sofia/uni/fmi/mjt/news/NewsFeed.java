@@ -53,7 +53,7 @@ public class NewsFeed {
         List<Article> allNews = new ArrayList<>(response.getArticles());
 
         while (currentPage < maxPages && response.getTotalResults() > (long) maxPageSize * currentPage) {
-            response = newsHttpClient.get(requestBuilder.setPageSize(++currentPage).build());
+            response = newsHttpClient.get(requestBuilder.setPage(++currentPage).build());
             allNews.addAll(response.getArticles());
         }
 

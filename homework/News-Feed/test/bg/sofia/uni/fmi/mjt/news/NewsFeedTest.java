@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class NewsFeedTest {
 
-    private static Response responseWithAllowedTotalSize;
+    private static Response responseWithTotalSizeEqualToMax;
     private static Response responseWithTotalSizeAboveMax;
 
     @Mock
@@ -51,7 +51,7 @@ public class NewsFeedTest {
             articles.add(article);
         }
 
-        responseWithAllowedTotalSize = new Response(Status.ok, MAX_PAGE_SIZE, articles);
+        responseWithTotalSizeEqualToMax = new Response(Status.ok, MAX_PAGE_SIZE, articles);
         responseWithTotalSizeAboveMax = new Response(Status.ok, MAX_PAGE_SIZE * MAX_PAGES + 1, articles);
 
         keywords = new ArrayList<>();
@@ -65,11 +65,14 @@ public class NewsFeedTest {
 
     @Test
     public void testGetNewsOnePageSuccess() throws NewsFeedException {
-        when(newsHttpClientMock.get(Mockito.any(RequestCriteria.class))).thenReturn(responseWithAllowedTotalSize);
+        when(newsHttpClientMock.get(Mockito.any(RequestCriteria.class))).thenReturn(responseWithTotalSizeEqualToMax);
 
         List<Article> news = newsFeed.getNews(keywords, Optional.empty(), Optional.empty());
 
-        assertEquals("Incorrect news for valid parameters.", news, responseWithAllowedTotalSize.getArticles());
+        assertEquals("Incorrect news for valid parameters.",
+                news, responseWithTotalSizeEqualToMax.getArticles());
+        assertEquals("Incorrect number of articles returned.",
+                news.size(), responseWithTotalSizeEqualToMax.getTotalResults().intValue());
     }
 
     @Test

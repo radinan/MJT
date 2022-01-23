@@ -9,6 +9,7 @@ import facade.HttpRequestSender;
 import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 //singleton?
 public class Controller {
@@ -31,18 +32,23 @@ public class Controller {
 
     //make category and country optional?
     //rethrow with better messages?
-    public List<Article> getNewsFeed(List<String> keywords, String category, String country) throws NewsFeedClientException {
+    public List<Article> getNewsFeed(List<String> keywords, Optional<String> category, Optional<String> country) throws NewsFeedClientException {
         if (keywords == null || keywords.isEmpty()) {
             throw new NewsFeedClientException("Missing required parameter.");
         }
 
-        ResponseSuccess response = httpRequestSender.get(
-                new Request(keywords, category, country, MAX_PAGE_SIZE, currentPage));
+        Request.RequestBuilder requestBuilder = Request.builder(keywords);
+        category.ifPresent(requestBuilder::setCategory);
+        country.ifPresent(requestBuilder::setCountry);
+        requestBuilder.setPageSize(MAX_PAGE_SIZE);
+        requestBuilder.setPage(currentPage);
+
+        ResponseSuccess response = httpRequestSender.get(requestBuilder.build());
 
         List<Article> allNews = new ArrayList<>(response.getArticles());
 
         while (currentPage < MAX_PAGES && response.getTotalResults() > (long) MAX_PAGE_SIZE * currentPage) {
-            response = httpRequestSender.get(new Request(keywords, category, country, MAX_PAGE_SIZE, ++currentPage));
+            response = httpRequestSender.get(requestBuilder.setPageSize(++currentPage).build());
             allNews.addAll(response.getArticles());
         }
 

@@ -53,7 +53,7 @@ public class NewsFeedTest {
 
     @Before
     public void setup() throws NewsFeedException {
-        newsFeed = new NewsFeed(newsHttpClientMock);
+        newsFeed = new NewsFeed(newsHttpClientMock, MAX_PAGES, MAX_PAGE_SIZE);
     }
 
     @Test

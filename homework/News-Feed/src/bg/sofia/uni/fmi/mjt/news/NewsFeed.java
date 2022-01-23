@@ -12,13 +12,25 @@ import java.util.Optional;
 
 public class NewsFeed {
     private static final Integer MAX_PAGES = 2;
-    private static final Integer MAX_PAGE_SIZE = 2;
+    private static final Integer MAX_PAGE_SIZE = 10;
+
+    private final Integer maxPages;
+    private final Integer maxPageSize;
     private Integer currentPage;
 
     private final NewsHttpClient newsHttpClient;
 
     public NewsFeed(NewsHttpClient newsHttpClient) {
         currentPage = 1;
+        maxPages = MAX_PAGES;
+        maxPageSize = MAX_PAGE_SIZE;
+        this.newsHttpClient = newsHttpClient;
+    }
+
+    public NewsFeed(NewsHttpClient newsHttpClient, Integer maxPages, Integer maxPageSize) {
+        currentPage = 1;
+        this.maxPages = maxPages;
+        this.maxPageSize = maxPageSize;
         this.newsHttpClient = newsHttpClient;
     }
 
@@ -32,14 +44,14 @@ public class NewsFeed {
         RequestCriteria.RequestBuilder requestBuilder = RequestCriteria.builder(keywords);
         category.ifPresent(requestBuilder::setCategory);
         country.ifPresent(requestBuilder::setCountry);
-        requestBuilder.setPageSize(MAX_PAGE_SIZE);
+        requestBuilder.setPageSize(maxPageSize);
         requestBuilder.setPage(currentPage);
 
         Response response = newsHttpClient.get(requestBuilder.build());
 
         List<Article> allNews = new ArrayList<>(response.getArticles());
 
-        while (currentPage < MAX_PAGES && response.getTotalResults() > (long) MAX_PAGE_SIZE * currentPage) {
+        while (currentPage < maxPages && response.getTotalResults() > (long) maxPageSize * currentPage) {
             response = newsHttpClient.get(requestBuilder.setPageSize(++currentPage).build());
             allNews.addAll(response.getArticles());
         }

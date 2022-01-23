@@ -1,4 +1,4 @@
-package bg.sofia.uni.fmi.mjt.news.controller;
+package bg.sofia.uni.fmi.mjt.news;
 
 import bg.sofia.uni.fmi.mjt.news.NewsFeed;
 import bg.sofia.uni.fmi.mjt.news.dto.Article;

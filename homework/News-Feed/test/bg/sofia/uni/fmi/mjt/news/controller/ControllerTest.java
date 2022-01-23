@@ -2,83 +2,92 @@ package bg.sofia.uni.fmi.mjt.news.controller;
 
 import bg.sofia.uni.fmi.mjt.news.dto.Article;
 import bg.sofia.uni.fmi.mjt.news.dto.ResponseSuccess;
-import bg.sofia.uni.fmi.mjt.news.entities.Status;
+import bg.sofia.uni.fmi.mjt.news.dto.Request;
+import bg.sofia.uni.fmi.mjt.news.dto.Status;
 import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
-import com.google.gson.Gson;
+import bg.sofia.uni.fmi.mjt.news.client.NewsHttpClient;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ControllerTest {
+    private static ResponseSuccess responseTotalSizeOne;
+    private static ResponseSuccess responseTotalSizeFive;
 
-    private static List<Article> exampleArticles;
-    private static ResponseSuccess exampleResponse;
-    private static String exampleResponseJSON;
-
-    @Mock
-    private HttpClient newsFeedHttpClientMock;
 
     @Mock
-    private HttpResponse<String> newsFeedHttpResponseMock;
+    private NewsHttpClient newsHttpClientMock;
 
     @InjectMocks
-    private static Controller controller;
+    private Controller controller;
+
+    private static final Integer MAX_PAGES = 2;
+    private static final Integer MAX_PAGE_SIZE = 2;
 
 
     @BeforeClass
     public static void setupClass() {
-        Article article = new Article(
-                "Example title",
-                "Example description",
-                "Example url",
-                "Example published at",
-                "Example content"
-                );
+        Article article = new Article("Example title", "Example description",
+                "Example url", "Example publishedAt", "Example content");
+        List<Article> articles = new ArrayList<>();
+        articles.add(article);
 
-        exampleArticles = new ArrayList<>();
-        exampleArticles.add(article);
+        responseTotalSizeOne = new ResponseSuccess(Status.ok, articles.size(), articles);
 
-        exampleResponse = new ResponseSuccess(Status.ok, 1, exampleArticles);
-        exampleResponseJSON = new Gson().toJson(exampleResponse);
+        for (int i = 1; i < MAX_PAGE_SIZE * MAX_PAGES + 1; ++i) {
+            articles.add(article);
+        }
+
+        responseTotalSizeFive = new ResponseSuccess(Status.ok, articles.size(), articles);
     }
 
     @Before
-    public void setup() throws IOException, InterruptedException {
-        when(newsFeedHttpClientMock.send(Mockito.any(HttpRequest.class),
-                ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
-                .thenReturn(newsFeedHttpResponseMock);
-
-        controller = new Controller(newsFeedHttpClientMock);
+    public void setup() throws NewsFeedClientException {
+        controller = new Controller(newsHttpClientMock);
     }
 
     @Test
-    public void testGetNewsValid() throws NewsFeedClientException {
-        when(newsFeedHttpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_OK);
-        when(newsFeedHttpResponseMock.body()).thenReturn(exampleResponseJSON);
+    public void testGetNewsOnePageSuccess() throws NewsFeedClientException {
+        when(newsHttpClientMock.get(Mockito.any(Request.class))).thenReturn(responseTotalSizeOne);
 
         List<String> keywords = new ArrayList<>();
         keywords.add("Example");
+        List<Article> news = controller.getNews(keywords, Optional.empty(), Optional.empty());
 
-        List<Article> articles = controller.getNewsFeed(keywords, java.util.Optional.empty(), java.util.Optional.empty());
+        assertEquals("", news, responseTotalSizeOne.getArticles());
+    }
 
-        assertEquals("Incorrect news for valid parameters.", exampleArticles, articles);
+//    @Test
+//    public void testGetNewsMultiplePagesSuccess() throws NewsFeedClientException {
+//        when(httpRequestSenderMock.get(Mockito.any(Request.class))).thenReturn(responseTotalSizeFive);
+//        List<String> keywords = new ArrayList<>();
+//        keywords.add("Example");
+//        List<Article> news = controller.getNews(keywords, Optional.empty(), Optional.empty());
+//
+//        assertTrue("", news.size() <= MAX_PAGES*MAX_PAGE_SIZE);
+//    }
+
+    @Test(expected = NewsFeedClientException.class)
+    public void testExceptionGetNewsMissingKey() throws NewsFeedClientException {
+        controller.getNews(null, Optional.empty(), Optional.empty());
+    }
+
+    @Test(expected = NewsFeedClientException.class)
+    public void testExceptionGetNewsEmptyKey() throws NewsFeedClientException {
+        controller.getNews(null, Optional.empty(), Optional.empty());
     }
 }

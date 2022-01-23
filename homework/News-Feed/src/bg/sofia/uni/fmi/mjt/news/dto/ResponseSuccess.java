@@ -1,8 +1,5 @@
 package bg.sofia.uni.fmi.mjt.news.dto;
 
-import bg.sofia.uni.fmi.mjt.news.dto.Article;
-import bg.sofia.uni.fmi.mjt.news.entities.Status;
-
 import java.util.List;
 import java.util.Objects;
 

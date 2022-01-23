@@ -1,7 +1,7 @@
-package bg.sofia.uni.fmi.mjt.news.facade;
+package bg.sofia.uni.fmi.mjt.news.client;
 
 import com.google.gson.Gson;
-import bg.sofia.uni.fmi.mjt.news.entities.Request;
+import bg.sofia.uni.fmi.mjt.news.dto.Request;
 import bg.sofia.uni.fmi.mjt.news.dto.ResponseSuccess;
 import bg.sofia.uni.fmi.mjt.news.exceptions.*;
 
@@ -11,8 +11,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class HttpRequestSender {
-    private final String API_KEY = "ae844815f7bf46a8b20a25c44a0eeb7f";
+public class NewsHttpClient {
+    //ae844815f7bf46a8b20a25c44a0eeb7f
+    private final String API_KEY = "put-api-key-here";
     private final String API_ENDPOINT_SCHEME = "https";
     private final String API_ENDPOINT_HOST = "newsapi.org";
     private final String API_ENDPOINT_PATH = "/v2/top-headlines";
@@ -22,12 +23,12 @@ public class HttpRequestSender {
     private final String api_key;
     private final HttpClient httpClient;
 
-    public HttpRequestSender (HttpClient httpClient) {
+    public NewsHttpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
         this.api_key = API_KEY;
     }
 
-    public HttpRequestSender (HttpClient httpClient, String api_key) {
+    public NewsHttpClient(HttpClient httpClient, String api_key) {
         this.httpClient = httpClient;
         this.api_key = api_key;
     }

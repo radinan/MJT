@@ -1,7 +1,6 @@
-package bg.sofia.uni.fmi.mjt.news.entities;
+package bg.sofia.uni.fmi.mjt.news.dto;
 
 import java.util.List;
-import java.util.Optional;
 
 public class Request {
     private final List<String> keywords;

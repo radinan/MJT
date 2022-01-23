@@ -1,12 +1,11 @@
 package bg.sofia.uni.fmi.mjt.news.controller;
 
-import bg.sofia.uni.fmi.mjt.news.entities.Request;
+import bg.sofia.uni.fmi.mjt.news.dto.Request;
 import bg.sofia.uni.fmi.mjt.news.dto.ResponseSuccess;
 import bg.sofia.uni.fmi.mjt.news.dto.Article;
 import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
-import bg.sofia.uni.fmi.mjt.news.facade.HttpRequestSender;
+import bg.sofia.uni.fmi.mjt.news.client.NewsHttpClient;
 
-import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -14,23 +13,17 @@ import java.util.Optional;
 //singleton?
 public class Controller {
     private final Integer MAX_PAGES = 2;
-    private final Integer MAX_PAGE_SIZE = 10;
+    private final Integer MAX_PAGE_SIZE = 2;
     private Integer currentPage;
 
-    private final HttpRequestSender httpRequestSender;
+    private final NewsHttpClient newsHttpClient;
 
-
-    public Controller(HttpClient httpClient) {
+    public Controller(NewsHttpClient newsHttpClient) {
         currentPage = 1;
-        httpRequestSender = new HttpRequestSender(httpClient);
+        this.newsHttpClient = newsHttpClient;
     }
 
-    public Controller(HttpClient httpClient, String apiKey) {
-        currentPage = 1;
-        httpRequestSender = new HttpRequestSender(httpClient, apiKey);
-    }
-
-    public List<Article> getNewsFeed(List<String> keywords, Optional<String> category, Optional<String> country) throws NewsFeedClientException {
+    public List<Article> getNews(List<String> keywords, Optional<String> category, Optional<String> country) throws NewsFeedClientException {
         if (keywords == null || keywords.isEmpty()) {
             throw new NewsFeedClientException("Missing required keywords parameter.");
         }
@@ -41,12 +34,12 @@ public class Controller {
         requestBuilder.setPageSize(MAX_PAGE_SIZE);
         requestBuilder.setPage(currentPage);
 
-        ResponseSuccess response = httpRequestSender.get(requestBuilder.build());
+        ResponseSuccess response = newsHttpClient.get(requestBuilder.build());
 
         List<Article> allNews = new ArrayList<>(response.getArticles());
 
         while (currentPage < MAX_PAGES && response.getTotalResults() > (long) MAX_PAGE_SIZE * currentPage) {
-            response = httpRequestSender.get(requestBuilder.setPageSize(++currentPage).build());
+            response = newsHttpClient.get(requestBuilder.setPageSize(++currentPage).build());
             allNews.addAll(response.getArticles());
         }
 

@@ -1,6 +1,6 @@
 package bg.sofia.uni.fmi.mjt.news;
 
-import bg.sofia.uni.fmi.mjt.news.dto.Request;
+import bg.sofia.uni.fmi.mjt.news.dto.RequestCriteria;
 import bg.sofia.uni.fmi.mjt.news.dto.Response;
 import bg.sofia.uni.fmi.mjt.news.dto.Article;
 import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
@@ -27,7 +27,7 @@ public class NewsFeed {
             throw new NewsFeedClientException("Missing required keywords parameter.");
         }
 
-        Request.RequestBuilder requestBuilder = Request.builder(keywords);
+        RequestCriteria.RequestBuilder requestBuilder = RequestCriteria.builder(keywords);
         category.ifPresent(requestBuilder::setCategory);
         country.ifPresent(requestBuilder::setCountry);
         requestBuilder.setPageSize(MAX_PAGE_SIZE);

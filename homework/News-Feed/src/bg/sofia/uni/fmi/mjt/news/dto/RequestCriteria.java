@@ -2,7 +2,7 @@ package bg.sofia.uni.fmi.mjt.news.dto;
 
 import java.util.List;
 
-public class Request {
+public class RequestCriteria {
     private final List<String> keywords;
 
     private final String category;
@@ -48,7 +48,7 @@ public class Request {
         return new RequestBuilder(keywords);
     }
 
-    private Request(RequestBuilder builder) {
+    private RequestCriteria(RequestBuilder builder) {
         this.keywords = builder.keywords;
         this.category = builder.category;
         this.country = builder.country;
@@ -88,8 +88,8 @@ public class Request {
             return this;
         }
 
-        public Request build() {
-            return new Request(this);
+        public RequestCriteria build() {
+            return new RequestCriteria(this);
         }
     }
 }

@@ -2,7 +2,7 @@ package bg.sofia.uni.fmi.mjt.news.client;
 
 import bg.sofia.uni.fmi.mjt.news.dto.Article;
 import bg.sofia.uni.fmi.mjt.news.dto.Response;
-import bg.sofia.uni.fmi.mjt.news.dto.Request;
+import bg.sofia.uni.fmi.mjt.news.dto.RequestCriteria;
 import bg.sofia.uni.fmi.mjt.news.dto.Status;
 import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
 import bg.sofia.uni.fmi.mjt.news.exceptions.NewsServiceException;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NewsHttpClientTest {
-    private static Request request;
+    private static RequestCriteria requestCriteria;
     private static String exampleJson;
     private static Response exampleResponse;
 
@@ -49,7 +49,7 @@ public class NewsHttpClientTest {
     public static void setupClass() {
         List<String> keywords = new ArrayList<>();
         keywords.add("Example");
-        request = Request.builder(keywords).build();
+        requestCriteria = RequestCriteria.builder(keywords).build();
 
         Article article = new Article("Example title", "Example description",
                 "Example url", "Example publishedAt", "Example content");
@@ -74,7 +74,7 @@ public class NewsHttpClientTest {
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(httpResponseMock.body()).thenReturn(exampleJson);
 
-        var response = newsHttpClient.get(request);
+        var response = newsHttpClient.get(requestCriteria);
 
         assertEquals("", response, exampleResponse);
     }
@@ -83,7 +83,7 @@ public class NewsHttpClientTest {
     public void testGetNewsServiceException() {
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_INTERNAL_ERROR);
         try {
-            newsHttpClient.get(request);
+            newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
             assertEquals("", NewsServiceException.class, e.getClass());
         }
@@ -91,7 +91,7 @@ public class NewsHttpClientTest {
         final int HTTP_TOO_MANY_REQUESTS = 429;
         when(httpResponseMock.statusCode()).thenReturn(HTTP_TOO_MANY_REQUESTS);
         try {
-            newsHttpClient.get(request);
+            newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
             assertEquals("", NewsServiceException.class, e.getClass());
         }
@@ -101,14 +101,14 @@ public class NewsHttpClientTest {
     public void testGetRequestParameterException() {
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
         try {
-            newsHttpClient.get(request);
+            newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
             assertEquals("", RequestParameterException.class, e.getClass());
         }
 
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_UNAUTHORIZED);
         try {
-            newsHttpClient.get(request);
+            newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
             assertEquals("", RequestParameterException.class, e.getClass());
         }
@@ -118,7 +118,7 @@ public class NewsHttpClientTest {
     public void testGetUnexpectedStatusCode() {
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_NOT_IMPLEMENTED);
         try {
-            newsHttpClient.get(request);
+            newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
             assertEquals("", NewsFeedClientException.class, e.getClass());
             assertNotEquals("", NewsServiceException.class, e.getClass());
@@ -134,7 +134,7 @@ public class NewsHttpClientTest {
                 .thenThrow(expectedExc);
 
         try {
-            newsHttpClient.get(request);
+            newsHttpClient.get(requestCriteria);
         } catch (NewsFeedClientException e) {
             assertEquals("", e.getCause(), expectedExc);
 //            assertEquals(); type

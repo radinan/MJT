@@ -1,9 +1,8 @@
 package bg.sofia.uni.fmi.mjt.news;
 
-import bg.sofia.uni.fmi.mjt.news.NewsFeed;
 import bg.sofia.uni.fmi.mjt.news.dto.Article;
 import bg.sofia.uni.fmi.mjt.news.dto.Response;
-import bg.sofia.uni.fmi.mjt.news.dto.Request;
+import bg.sofia.uni.fmi.mjt.news.dto.RequestCriteria;
 import bg.sofia.uni.fmi.mjt.news.dto.Status;
 import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
 import bg.sofia.uni.fmi.mjt.news.client.NewsHttpClient;
@@ -26,9 +25,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NewsFeedTest {
-    private static Response responseTotalSizeOne;
-    private static Response responseTotalSizeFive;
-
+    private static Response responseTotalSizeBelowMax;
+    private static Response responseTotalSizeAboveMax;
 
     @Mock
     private NewsHttpClient newsHttpClientMock;
@@ -39,21 +37,18 @@ public class NewsFeedTest {
     private static final Integer MAX_PAGES = 2;
     private static final Integer MAX_PAGE_SIZE = 2;
 
-
     @BeforeClass
     public static void setupClass() {
         Article article = new Article("Example title", "Example description",
                 "Example url", "Example publishedAt", "Example content");
         List<Article> articles = new ArrayList<>();
-        articles.add(article);
 
-        responseTotalSizeOne = new Response(Status.ok, articles.size(), articles);
-
-        for (int i = 1; i < MAX_PAGE_SIZE * MAX_PAGES + 1; ++i) {
+        for (int i = 0; i < MAX_PAGE_SIZE; ++i) {
             articles.add(article);
         }
 
-        responseTotalSizeFive = new Response(Status.ok, articles.size(), articles);
+        responseTotalSizeBelowMax = new Response(Status.ok, MAX_PAGE_SIZE, articles);
+        responseTotalSizeAboveMax = new Response(Status.ok, MAX_PAGE_SIZE * MAX_PAGES + 1, articles);
     }
 
     @Before
@@ -63,24 +58,25 @@ public class NewsFeedTest {
 
     @Test
     public void testGetNewsOnePageSuccess() throws NewsFeedClientException {
-        when(newsHttpClientMock.get(Mockito.any(Request.class))).thenReturn(responseTotalSizeOne);
+        when(newsHttpClientMock.get(Mockito.any(RequestCriteria.class))).thenReturn(responseTotalSizeBelowMax);
 
         List<String> keywords = new ArrayList<>();
         keywords.add("Example");
         List<Article> news = newsFeed.getNews(keywords, Optional.empty(), Optional.empty());
 
-        assertEquals("", news, responseTotalSizeOne.getArticles());
+        assertEquals("Incorrect news for valid parameters.", news, responseTotalSizeBelowMax.getArticles());
     }
 
-//    @Test
-//    public void testGetNewsMultiplePagesSuccess() throws NewsFeedClientException {
-//        when(httpRequestSenderMock.get(Mockito.any(Request.class))).thenReturn(responseTotalSizeFive);
-//        List<String> keywords = new ArrayList<>();
-//        keywords.add("Example");
-//        List<Article> news = controller.getNews(keywords, Optional.empty(), Optional.empty());
-//
-//        assertTrue("", news.size() <= MAX_PAGES*MAX_PAGE_SIZE);
-//    }
+    @Test
+    public void testGetNewsMultiplePagesSuccess() throws NewsFeedClientException {
+        when(newsHttpClientMock.get(Mockito.any(RequestCriteria.class))).thenReturn(responseTotalSizeAboveMax);
+
+        List<String> keywords = new ArrayList<>();
+        keywords.add("Example");
+        List<Article> news = newsFeed.getNews(keywords, Optional.empty(), Optional.empty());
+
+        assertTrue("Incorrect size of returned articles.", news.size() <= MAX_PAGES * MAX_PAGE_SIZE);
+    }
 
     @Test(expected = NewsFeedClientException.class)
     public void testExceptionGetNewsMissingKey() throws NewsFeedClientException {
@@ -89,6 +85,6 @@ public class NewsFeedTest {
 
     @Test(expected = NewsFeedClientException.class)
     public void testExceptionGetNewsEmptyKey() throws NewsFeedClientException {
-        newsFeed.getNews(null, Optional.empty(), Optional.empty());
+        newsFeed.getNews(new ArrayList<>(), Optional.empty(), Optional.empty());
     }
 }

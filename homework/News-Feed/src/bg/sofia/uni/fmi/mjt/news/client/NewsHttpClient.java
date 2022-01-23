@@ -1,7 +1,7 @@
 package bg.sofia.uni.fmi.mjt.news.client;
 
 import com.google.gson.Gson;
-import bg.sofia.uni.fmi.mjt.news.dto.Request;
+import bg.sofia.uni.fmi.mjt.news.dto.RequestCriteria;
 import bg.sofia.uni.fmi.mjt.news.dto.Response;
 import bg.sofia.uni.fmi.mjt.news.exceptions.*;
 
@@ -33,11 +33,11 @@ public class NewsHttpClient {
         this.api_key = api_key;
     }
 
-    public Response get(Request request) throws NewsFeedClientException {
+    public Response get(RequestCriteria requestCriteria) throws NewsFeedClientException {
         HttpResponse<String> httpResponse;
 
         try {
-            URI uri = new URI(API_ENDPOINT_SCHEME, API_ENDPOINT_HOST, API_ENDPOINT_PATH, generateParameters(request));
+            URI uri = new URI(API_ENDPOINT_SCHEME, API_ENDPOINT_HOST, API_ENDPOINT_PATH, generateParameters(requestCriteria));
             HttpRequest httpRequest = HttpRequest.newBuilder(uri).build();
 
             httpResponse =  httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
@@ -64,7 +64,7 @@ public class NewsHttpClient {
         throw new NewsFeedClientException("Unexpected response code.");
     }
 
-    private String generateParameters(Request request) {
+    private String generateParameters(RequestCriteria requestCriteria) {
         StringBuilder parameters = new StringBuilder();
 
         final String PREFIX_COUNTRY = "country=";
@@ -74,22 +74,22 @@ public class NewsHttpClient {
         final String PREFIX_PAGE = "page=";
         final String PREFIX_API_KEY = "apiKey=";
 
-        if (request.getCountry() != null) {
-            appendPrefixAndValueToFragment(parameters, PREFIX_COUNTRY, request.getCountry());
+        if (requestCriteria.getCountry() != null) {
+            appendPrefixAndValueToFragment(parameters, PREFIX_COUNTRY, requestCriteria.getCountry());
         }
 
-        if (request.getCategory() != null) {
-            appendPrefixAndValueToFragment(parameters, PREFIX_CATEGORY, request.getCategory());
+        if (requestCriteria.getCategory() != null) {
+            appendPrefixAndValueToFragment(parameters, PREFIX_CATEGORY, requestCriteria.getCategory());
         }
 
-        appendPrefixAndValueToFragment(parameters, PREFIX_KEYWORDS, request.getConcatenatedKeywords());
+        appendPrefixAndValueToFragment(parameters, PREFIX_KEYWORDS, requestCriteria.getConcatenatedKeywords());
 
-        if (request.getPageSize() != null) {
-            appendPrefixAndValueToFragment(parameters, PREFIX_PAGE_SIZE, request.getPageSize().toString());
+        if (requestCriteria.getPageSize() != null) {
+            appendPrefixAndValueToFragment(parameters, PREFIX_PAGE_SIZE, requestCriteria.getPageSize().toString());
         }
 
-        if(request.getPage() != null) {
-            appendPrefixAndValueToFragment(parameters, PREFIX_PAGE, request.getPage().toString());
+        if(requestCriteria.getPage() != null) {
+            appendPrefixAndValueToFragment(parameters, PREFIX_PAGE, requestCriteria.getPage().toString());
         }
 
         appendPrefixAndValueToFragment(parameters, PREFIX_API_KEY, api_key);

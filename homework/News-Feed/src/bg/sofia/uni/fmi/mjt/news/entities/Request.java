@@ -1,4 +1,4 @@
-package entities;
+package bg.sofia.uni.fmi.mjt.news.entities;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +14,7 @@ public class Request {
     public List<String> getKeywords() {
         return keywords;
     }
-    
+
     public String getConcatenatedKeywords() {
         if (keywords.isEmpty()) {
             return null;
@@ -29,20 +29,20 @@ public class Request {
         return concatenatedKeywords.toString();
     }
 
-    public Optional<String> getCategory() {
-        return Optional.of(category);
+    public String getCategory() {
+        return category;
     }
 
-    public Optional<String> getCountry() {
-        return Optional.of(country);
+    public String getCountry() {
+        return country;
     }
 
-    public Optional<Integer> getPageSize() {
-        return pageSize.describeConstable();
+    public Integer getPageSize() {
+        return pageSize;
     }
 
-    public Optional<Integer> getPage() {
-        return page.describeConstable();
+    public Integer getPage() {
+        return page;
     }
 
     public static RequestBuilder builder(List<String> keywords) {

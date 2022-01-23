@@ -1,10 +1,9 @@
-package facade;
+package bg.sofia.uni.fmi.mjt.news.facade;
 
 import com.google.gson.Gson;
-import entities.Request;
-import entities.ResponseError;
-import entities.ResponseSuccess;
-import exceptions.*;
+import bg.sofia.uni.fmi.mjt.news.entities.Request;
+import bg.sofia.uni.fmi.mjt.news.dto.ResponseSuccess;
+import bg.sofia.uni.fmi.mjt.news.exceptions.*;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -33,45 +32,35 @@ public class HttpRequestSender {
         this.api_key = api_key;
     }
 
-    //throw with message from body?
     public ResponseSuccess get(Request request) throws NewsFeedClientException {
-        HttpResponse<String> httpResponse = getRequest(request);
+        HttpResponse<String> httpResponse;
+
+        try {
+            URI uri = new URI(API_ENDPOINT_SCHEME, API_ENDPOINT_HOST, API_ENDPOINT_PATH, generateParameters(request));
+            HttpRequest httpRequest = HttpRequest.newBuilder(uri).build();
+
+            httpResponse =  httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            throw new NewsFeedClientException("Could not retrieve the articles from news service.", e);
+        }
 
         if (httpResponse.statusCode() == HttpURLConnection.HTTP_OK) {
             return GSON.fromJson(httpResponse.body(), ResponseSuccess.class);
         }
 
-        ResponseError responseError = GSON.fromJson(httpResponse.body(), ResponseError.class); //or return everywhere the message?
         final int HTTP_TOO_MANY_REQUESTS = 429;
 
-        if (httpResponse.statusCode() == HttpURLConnection.HTTP_BAD_REQUEST) {
-            throw new RequestParameterException("Missing or invalid parameter.");
+        if (httpResponse.statusCode() == HttpURLConnection.HTTP_BAD_REQUEST ||
+                httpResponse.statusCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            throw new RequestParameterException("Invalid request.");
         }
 
-        if (httpResponse.statusCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            throw new ApiKeyException("Missing or invalid api key.");
-        }
-
-        if (httpResponse.statusCode() == HTTP_TOO_MANY_REQUESTS) {
-            throw new RateLimitException("Too many requests within a window of time.");
-        }
-
-        if (httpResponse.statusCode() == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-            throw new ServerErrorException("Internal error.");
+        if (httpResponse.statusCode() == HttpURLConnection.HTTP_INTERNAL_ERROR ||
+                httpResponse.statusCode() == HTTP_TOO_MANY_REQUESTS) {
+            throw new NewsServiceException("Unavailable service");
         }
 
         throw new NewsFeedClientException("Unexpected response code.");
-    }
-
-    private HttpResponse<String> getRequest(Request request) throws NewsFeedClientException {
-        try {
-            URI uri = new URI(API_ENDPOINT_SCHEME, API_ENDPOINT_HOST, API_ENDPOINT_PATH, generateParameters(request));
-            HttpRequest httpRequest = HttpRequest.newBuilder(uri).build();
-
-            return httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-        } catch (Exception e) {
-            throw new NewsFeedClientException("Could not retrieve the articles.", e);
-        }
     }
 
     private String generateParameters(Request request) {
@@ -84,19 +73,23 @@ public class HttpRequestSender {
         final String PREFIX_PAGE = "page=";
         final String PREFIX_API_KEY = "apiKey=";
 
-        if (request.getCountry().isPresent()) {
-            appendPrefixAndValueToFragment(parameters, PREFIX_COUNTRY, request.getCountry().get());
+        if (request.getCountry() != null) {
+            appendPrefixAndValueToFragment(parameters, PREFIX_COUNTRY, request.getCountry());
         }
 
-        if (request.getCategory().isPresent()) {
-            appendPrefixAndValueToFragment(parameters, PREFIX_CATEGORY, request.getCategory().get());
+        if (request.getCategory() != null) {
+            appendPrefixAndValueToFragment(parameters, PREFIX_CATEGORY, request.getCategory());
         }
 
         appendPrefixAndValueToFragment(parameters, PREFIX_KEYWORDS, request.getConcatenatedKeywords());
 
-        appendPrefixAndValueToFragment(parameters, PREFIX_PAGE_SIZE, request.getPageSize().toString());
+        if (request.getPageSize() != null) {
+            appendPrefixAndValueToFragment(parameters, PREFIX_PAGE_SIZE, request.getPageSize().toString());
+        }
 
-        appendPrefixAndValueToFragment(parameters, PREFIX_PAGE, request.getPage().toString());
+        if(request.getPage() != null) {
+            appendPrefixAndValueToFragment(parameters, PREFIX_PAGE, request.getPage().toString());
+        }
 
         appendPrefixAndValueToFragment(parameters, PREFIX_API_KEY, api_key);
 

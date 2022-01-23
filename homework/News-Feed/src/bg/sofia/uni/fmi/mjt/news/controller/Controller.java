@@ -1,10 +1,10 @@
-package controller;
+package bg.sofia.uni.fmi.mjt.news.controller;
 
-import entities.Request;
-import entities.ResponseSuccess;
-import dto.Article;
-import exceptions.NewsFeedClientException;
-import facade.HttpRequestSender;
+import bg.sofia.uni.fmi.mjt.news.entities.Request;
+import bg.sofia.uni.fmi.mjt.news.dto.ResponseSuccess;
+import bg.sofia.uni.fmi.mjt.news.dto.Article;
+import bg.sofia.uni.fmi.mjt.news.exceptions.NewsFeedClientException;
+import bg.sofia.uni.fmi.mjt.news.facade.HttpRequestSender;
 
 import java.net.http.HttpClient;
 import java.util.ArrayList;
@@ -30,11 +30,9 @@ public class Controller {
         httpRequestSender = new HttpRequestSender(httpClient, apiKey);
     }
 
-    //make category and country optional?
-    //rethrow with better messages?
     public List<Article> getNewsFeed(List<String> keywords, Optional<String> category, Optional<String> country) throws NewsFeedClientException {
         if (keywords == null || keywords.isEmpty()) {
-            throw new NewsFeedClientException("Missing required parameter.");
+            throw new NewsFeedClientException("Missing required keywords parameter.");
         }
 
         Request.RequestBuilder requestBuilder = Request.builder(keywords);

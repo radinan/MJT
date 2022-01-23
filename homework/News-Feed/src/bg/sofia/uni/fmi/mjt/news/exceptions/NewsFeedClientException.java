@@ -1,4 +1,4 @@
-package exceptions;
+package bg.sofia.uni.fmi.mjt.news.exceptions;
 
 public class NewsFeedClientException extends Exception {
     public NewsFeedClientException(String message) {

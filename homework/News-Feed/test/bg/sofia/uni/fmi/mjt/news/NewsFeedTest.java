@@ -65,7 +65,7 @@ public class NewsFeedTest {
 
     @Test
     public void testGetNewsOnePageSuccess() throws NewsFeedException {
-        when(newsHttpClientMock.get(Mockito.any(RequestCriteria.class))).thenReturn(responseWithTotalSizeEqualToMax);
+        when(newsHttpClientMock.getByRequestCriteria(Mockito.any(RequestCriteria.class))).thenReturn(responseWithTotalSizeEqualToMax);
 
         List<Article> news = newsFeed.getNews(keywords, Optional.empty(), Optional.empty());
 
@@ -77,7 +77,7 @@ public class NewsFeedTest {
 
     @Test
     public void testGetNewsMultiplePagesSuccess() throws NewsFeedException {
-        when(newsHttpClientMock.get(Mockito.any(RequestCriteria.class))).thenReturn(responseWithTotalSizeAboveMax);
+        when(newsHttpClientMock.getByRequestCriteria(Mockito.any(RequestCriteria.class))).thenReturn(responseWithTotalSizeAboveMax);
 
         List<Article> news = newsFeed.getNews(keywords, Optional.empty(), Optional.empty());
 

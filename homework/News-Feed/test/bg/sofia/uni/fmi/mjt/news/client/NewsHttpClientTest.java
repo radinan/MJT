@@ -91,7 +91,7 @@ public class NewsHttpClientTest {
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(httpResponseMock.body()).thenReturn(json);
 
-        Response result = newsHttpClient.get(requestCriteria);
+        Response result = newsHttpClient.getByRequestCriteria(requestCriteria);
 
         assertEquals("Invalid response for valid request criteria.", result, response);
     }
@@ -100,7 +100,7 @@ public class NewsHttpClientTest {
     public void testGetNewsServiceException() {
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_INTERNAL_ERROR);
         try {
-            newsHttpClient.get(requestCriteria);
+            newsHttpClient.getByRequestCriteria(requestCriteria);
         } catch (Exception e) {
             assertEquals("ClientServiceException should be thrown due to server unavailability.",
                     ClientServiceException.class, e.getClass());
@@ -109,7 +109,7 @@ public class NewsHttpClientTest {
         final int httpTooManyRequests = 429;
         when(httpResponseMock.statusCode()).thenReturn(httpTooManyRequests);
         try {
-            newsHttpClient.get(requestCriteria);
+            newsHttpClient.getByRequestCriteria(requestCriteria);
         } catch (Exception e) {
             assertEquals("ClientServiceException should be thrown due to big amount of requests.",
                     ClientServiceException.class, e.getClass());
@@ -120,7 +120,7 @@ public class NewsHttpClientTest {
     public void testGetRequestParameterException() {
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
         try {
-            newsHttpClient.get(requestCriteria);
+            newsHttpClient.getByRequestCriteria(requestCriteria);
         } catch (Exception e) {
             assertEquals("ClientRequestException should be thrown due to unacceptable request.",
                     ClientRequestException.class, e.getClass());
@@ -128,7 +128,7 @@ public class NewsHttpClientTest {
 
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_UNAUTHORIZED);
         try {
-            newsHttpClient.get(requestCriteria);
+            newsHttpClient.getByRequestCriteria(requestCriteria);
         } catch (Exception e) {
             assertEquals("ClientRequestException should be thrown due to unauthorized request.",
                     ClientRequestException.class, e.getClass());
@@ -139,7 +139,7 @@ public class NewsHttpClientTest {
     public void testGetUnexpectedStatusCode() {
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_NOT_IMPLEMENTED);
         try {
-            newsHttpClient.get(requestCriteria);
+            newsHttpClient.getByRequestCriteria(requestCriteria);
         } catch (Exception e) {
             assertEquals("Exception type should be NewsFeedException due to unknown status code.",
                     NewsFeedException.class, e.getClass());
@@ -158,7 +158,7 @@ public class NewsHttpClientTest {
                 .thenThrow(expectedExc);
 
         try {
-            newsHttpClient.get(requestCriteria);
+            newsHttpClient.getByRequestCriteria(requestCriteria);
         } catch (NewsFeedException e) {
             assertEquals("Exception should be wrapped properly by NewsFeedException.",
                     e.getCause(), expectedExc);

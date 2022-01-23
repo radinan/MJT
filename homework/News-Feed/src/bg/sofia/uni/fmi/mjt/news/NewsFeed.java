@@ -48,12 +48,12 @@ public class NewsFeed {
         requestBuilder.setPageSize(maxPageSize);
         requestBuilder.setPage(currentPage);
 
-        Response response = newsHttpClient.get(requestBuilder.build());
+        Response response = newsHttpClient.getByRequestCriteria(requestBuilder.build());
 
         List<Article> allNews = new ArrayList<>(response.getArticles());
 
         while (currentPage < maxPages && response.getTotalResults() > (long) maxPageSize * currentPage) {
-            response = newsHttpClient.get(requestBuilder.setPage(++currentPage).build());
+            response = newsHttpClient.getByRequestCriteria(requestBuilder.setPage(++currentPage).build());
             allNews.addAll(response.getArticles());
         }
 

@@ -34,7 +34,7 @@ public class NewsHttpClient {
         this.apiKey = apiKey;
     }
 
-    public Response get(RequestCriteria requestCriteria) throws NewsFeedException {
+    public Response getByRequestCriteria(RequestCriteria requestCriteria) throws NewsFeedException {
         HttpResponse<String> httpResponse;
 
         try {

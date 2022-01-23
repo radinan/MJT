@@ -32,9 +32,10 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NewsHttpClientTest {
+
     private static RequestCriteria requestCriteria;
-    private static Response exampleResponse;
-    private static String exampleJson;
+    private static Response response;
+    private static String json;
 
     @Mock
     private static HttpResponse<String> httpResponseMock;
@@ -49,7 +50,6 @@ public class NewsHttpClientTest {
     public static void setupClass() {
         List<String> keywords = new ArrayList<>();
         keywords.add("example");
-
         String category = "business";
         String country = "bg";
         Integer pageSize = 2;
@@ -73,8 +73,8 @@ public class NewsHttpClientTest {
         List<Article> articles = new ArrayList<>();
         articles.add(article);
 
-        exampleResponse = new Response(Status.ok, 1, articles);
-        exampleJson = new Gson().toJson(exampleResponse);
+        response = new Response(Status.ok, articles.size(), articles);
+        json = new Gson().toJson(response);
     }
 
     @Before
@@ -89,11 +89,11 @@ public class NewsHttpClientTest {
     @Test
     public void testGetSuccess() throws NewsFeedException {
         when(httpResponseMock.statusCode()).thenReturn(HttpURLConnection.HTTP_OK);
-        when(httpResponseMock.body()).thenReturn(exampleJson);
+        when(httpResponseMock.body()).thenReturn(json);
 
-        var response = newsHttpClient.get(requestCriteria);
+        Response result = newsHttpClient.get(requestCriteria);
 
-        assertEquals("Invalid response for valid request criteria.", response, exampleResponse);
+        assertEquals("Invalid response for valid request criteria.", result, response);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class NewsHttpClientTest {
         try {
             newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
-            assertEquals("Error class should be ClientServiceException due to server unavailability.",
+            assertEquals("ClientServiceException should be thrown due to server unavailability.",
                     ClientServiceException.class, e.getClass());
         }
 
@@ -111,7 +111,7 @@ public class NewsHttpClientTest {
         try {
             newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
-            assertEquals("Error class should be ClientServiceException due to big amount of requests.",
+            assertEquals("ClientServiceException should be thrown due to big amount of requests.",
                     ClientServiceException.class, e.getClass());
         }
     }
@@ -122,7 +122,7 @@ public class NewsHttpClientTest {
         try {
             newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
-            assertEquals("Error class should be ClientRequestException due to unacceptable request.",
+            assertEquals("ClientRequestException should be thrown due to unacceptable request.",
                     ClientRequestException.class, e.getClass());
         }
 
@@ -130,7 +130,7 @@ public class NewsHttpClientTest {
         try {
             newsHttpClient.get(requestCriteria);
         } catch (Exception e) {
-            assertEquals("Error class should be ClientRequestException due to unauthorized request.",
+            assertEquals("ClientRequestException should be thrown due to unauthorized request.",
                     ClientRequestException.class, e.getClass());
         }
     }
@@ -164,4 +164,5 @@ public class NewsHttpClientTest {
                     e.getCause(), expectedExc);
         }
     }
+
 }

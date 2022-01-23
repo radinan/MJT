@@ -12,6 +12,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class NewsHttpClient {
+
     //get api key after registration at https://newsapi.org/register
     private static final String API_KEY = "put-api-key-here";
     private static final String API_ENDPOINT_SCHEME = "https";
@@ -108,4 +109,5 @@ public class NewsHttpClient {
 
         fragment.append(prefix).append(value);
     }
+
 }

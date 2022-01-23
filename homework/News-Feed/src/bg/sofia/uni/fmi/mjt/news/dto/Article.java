@@ -3,6 +3,7 @@ package bg.sofia.uni.fmi.mjt.news.dto;
 import java.util.Objects;
 
 public class Article {
+
     private final String title;
     private final String description;
     private final String url;
@@ -35,6 +36,10 @@ public class Article {
         return publishedAt;
     }
 
+    public String getContent() {
+        return content;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -55,7 +60,4 @@ public class Article {
         return Objects.hash(title, description, url, publishedAt);
     }
 
-    public String getContent() {
-        return content;
-    }
 }

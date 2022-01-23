@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class Response {
+
     private final Status status;
     private final Integer totalResults;
     private final List<Article> articles;
@@ -40,4 +41,5 @@ public class Response {
     public int hashCode() {
         return Objects.hash(status, totalResults, articles);
     }
+
 }

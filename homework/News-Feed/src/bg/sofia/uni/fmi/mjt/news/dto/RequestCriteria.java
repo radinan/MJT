@@ -3,6 +3,7 @@ package bg.sofia.uni.fmi.mjt.news.dto;
 import java.util.List;
 
 public class RequestCriteria {
+
     private final List<String> keywords;
 
     private final String category;
@@ -92,4 +93,5 @@ public class RequestCriteria {
             return new RequestCriteria(this);
         }
     }
+
 }

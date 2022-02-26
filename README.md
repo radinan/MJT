@@ -45,3 +45,9 @@
 | 11 | [Race track](https://github.com/radinan/java-course/blob/master/09-threads/lab/README.md) | [:wavy_dash::nine::wavy_dash:](https://github.com/radinan/MJT/tree/main/lab/lab9/01) |
 | 12 | [Cocktail recipes](https://github.com/radinan/java-course/blob/master/10-network/lab/README.md) | [:wavy_dash::one::zero:](https://github.com/radinan/MJT/tree/main/lab/lab10/01) |
 | 13 | [News feed](https://github.com/radinan/java-course/blob/master/11-http-rest/lab/README.md) | [:wavy_dash::one::one:](https://github.com/radinan/MJT/tree/main/homework/News-Feed) |
+
+
+### Course Project ###
+| Name |
+| :--- |
+| [Self care app](https://github.com/radinan/Self-Care-App) |
